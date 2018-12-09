@@ -6,8 +6,12 @@
 int KohonenNetwork::Handle(std::vector<int> input){
     for(auto i=0; i<_inputs.size(); i++){
         auto inputNeuron = _inputs[i];
-        for(auto outgoingLinks :  inputNeuron.outgoingLinks){
-            outgoingLinks
+        for(auto outgoingLink :  inputNeuron.outgoingLinks){
+            outgoingLink->neuron->power += outgoingLink->weight*input[i];
         }
     }
+    
+    int maxInput = 0;
+    
+    
 }
