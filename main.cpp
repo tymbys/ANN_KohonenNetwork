@@ -1,5 +1,7 @@
 #include <cstdlib>
 #include <iomanip>
+#include <vector>
+#include <unistd.h>
 #include "models/MNIST.h"
 //#include "ANN.h"
 #include "models/KohonenNetwork.h"
@@ -25,7 +27,8 @@ int main(int argc, char** argv) {
 
     //Kohonen();
 
-    MNIST_TEST();
+    //MNIST_TEST();
+    neuralNet_TEST();
 
     return 0;
 }
@@ -226,11 +229,11 @@ void Kohonen_MNIST_TEST() {
     mnist.ReadMNIST("./db/t10k-images.idx3-ubyte", count, 784, ar_img, IS_IMG); //28x28
     mnist.ReadMNIST("./db/t10k-labels.idx1-ubyte", count, 1, ar_label, IS_LABEL); //1
 
-    
-    
+
+
     KohonenNetwork * network = new KohonenNetwork(data_size, 10);
-    
-    
+
+
 
 
 
@@ -258,7 +261,7 @@ void Kohonen_MNIST_TEST() {
 
         if (sum >= count_data_train * 10) break;
 
-        
+
 
         i++;
     }
@@ -268,31 +271,121 @@ void Kohonen_MNIST_TEST() {
 
 }
 
-void neuralNet_TEST(){
+void neuralNet_TEST() {
+
+    const int count_data_train = 10; //количество выборок кажной цифры для тренировки
+    int inc_train[10] = {0};
+    neural_net = new neuralNet(28 * 28, 10, 10);
+
+    //sleep(3);
+
+    const int count = 1000;
+    vector<vector<double>> ar_img;
+    vector<vector<double>> ar_label;
+    mnist.ReadMNIST("./db/t10k-images.idx3-ubyte", count, 784, ar_img, IS_IMG); //28x28
+    mnist.ReadMNIST("./db/t10k-labels.idx1-ubyte", count, 1, ar_label, IS_LABEL);
+
+
+    int i = 0, i_datda_train = 0;
+
+    for (vector<double> img : ar_img) {
+        int w = 28, h = 28;
+        int x = 0, y = 0;
+
+        int label = ar_label[i][0];
+
+        if (label >= 0 && label < 10  ) { //0..9
+            
+
+            if (inc_train[label] < count_data_train) {
+                inc_train[label]++;
+                
+                neural_net->alphabet[label] = img;//.push_back(1);
+                neural_net->tests[label].image = img;
+
+                for(int j=0; j < 10; j++){
+                    if(j==label)
+                       neural_net->tests[label].output[j] = 1;
+                    else
+                       neural_net->tests[label].output[j] = 0;
+                }
+
+
+                if (inc_train[label] >= count_data_train)
+                    cout << "count_data_train: " << inc_train[label] << " , label: " << label << endl;
+
+
+                //data_train.label[i_datda_train] = label;
+                //data_train.data[i_datda_train] = img;
+                i_datda_train++;
+            }
+
+            cout << "Count image: " << i_datda_train << endl;
+
+
+            //проверяем кол-во тренировок
+            int sum = 0;
+            for (int num = 0; num < 10; num++) {
+                sum += inc_train[num];
+            }
+
+            if (sum >= count_data_train * 10) break;
+
+
+        }
+
+//        if (label == 1) {
+//            cout << endl << endl << "ind: " << i << "\tImg : " << label << endl;
+//            for (auto point : img) {
+//                if (x >= w) {
+//                    x = 0;
+//                    y++;
+//                    cout << endl;
+//                }
+//                x++;
+//                cout << setw(4) << point;
+//            }
+//
+//        }
+
+            i++;
+    }
+
+
+    cout << endl;
+
+    //exit(0);
     
-    neural_net = new neuralNet(28*28, 10, 10);
+
     int test;
     double mse;
-    
+
+    int count_mse=0;
     //training
-  do {
+    do {
 
-    /* Pick a test at random */
-    test = neural_net->rand_test();
 
-    /* Grab input image (with no noise) */
-    neural_net->set_network_inputs( test, 0.0 );
 
-    /* Feed this data set forward */
-    neural_net->feed_forward();
+        /* Pick a test at random */
+        test = neural_net->rand_test();
 
-    /* Backpropagate the error */
-    neural_net->backpropagate_error( test );
+        /* Grab input image (with no noise) */
+        neural_net->set_network_inputs(test, 0.0);
 
-    /* Calculate the current MSE */
-    mse = neural_net->calculate_mse( test );
-//     cout<<test<<","<<mse<<endl;
-  } while (mse > 0.001);
-  
+        /* Feed this data set forward */
+        neural_net->feed_forward();
+
+        /* Backpropagate the error */
+        neural_net->backpropagate_error(test);
+
+        /* Calculate the current MSE */
+        mse = neural_net->calculate_mse(test);
+        //     cout<<test<<","<<mse<<endl;
+
+        count_mse++;
+    } while (mse > 0.001);
+
+    cout<<"count_mse: "<< count_mse << mse << endl;
+
     //cross validation 
 }

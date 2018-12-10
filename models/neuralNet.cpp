@@ -4,26 +4,45 @@ neuralNet::neuralNet(const int inputs_neurons, const int hidden_neurons, const i
     
     srand(time(NULL));
     
+    MAX_TESTS = 10;
+    //MAX_TESTS = max_tests;
+    
     INPUT_NEURONS = inputs_neurons;
     HIDDEN_NEURONS = hidden_neurons;
     OUTPUT_NEURONS = outputs_neurons;
     
-    inputs = new double[INPUT_NEURONS + 1];
-    hidden = new double[HIDDEN_NEURONS + 1];
-    outputs = new double[OUTPUT_NEURONS];
-    
+    //inputs = new double[INPUT_NEURONS + 1];
+    //hidden = new double[HIDDEN_NEURONS + 1];
+   //outputs = new double[OUTPUT_NEURONS];
+    inputs.resize(INPUT_NEURONS + 1);
+    hidden.resize(HIDDEN_NEURONS + 1);
+    outputs.resize(OUTPUT_NEURONS);
     
     //w_h_i = new double[HIDDEN_NEURONS][INPUT_NEURONS + 1];
     //w_o_h = new double[OUTPUT_NEURONS][HIDDEN_NEURONS + 1];
     
-    w_h_i = new double[HIDDEN_NEURONS*INPUT_NEURONS + 1];
-    w_o_h = new double[OUTPUT_NEURONS*HIDDEN_NEURONS + 1];
+    //w_h_i = new double[HIDDEN_NEURONS*INPUT_NEURONS + 1];
+    //w_o_h = new double[OUTPUT_NEURONS*HIDDEN_NEURONS + 1];
     
-    tests = new test_image_t[MAX_TESTS];
+    w_h_i.resize(HIDDEN_NEURONS, vector<double>(INPUT_NEURONS + 1));
+    w_o_h.resize(OUTPUT_NEURONS, vector<double>(HIDDEN_NEURONS + 1));
+    
+    //tests = new test_image_t[MAX_TESTS];
+    
+    
+    //tests = new test_images_s(INPUT_NEURONS, OUTPUT_NEURONS);
+    tests.resize(MAX_TESTS);
+    
+    for (int test_im = 0; test_im < tests.size(); test_im++){
+
+        tests[test_im].image.resize(INPUT_NEURONS);
+        tests[test_im].output.resize(OUTPUT_NEURONS);
+    }
     
     init_network();
     
     //alphabet[index] = new int[width*height];
+    alphabet.resize(outputs_neurons, vector<double>(inputs_neurons));
 }
 
 
@@ -31,7 +50,7 @@ neuralNet::~neuralNet() {
 }
 
 
-void neuralNet::setTestImage(test_image_t *test_image, const int max_tests){
+void neuralNet::setTestImage(vector<test_images_t> test_image, const int max_tests){
     tests = test_image;
     MAX_TESTS = max_tests;
 }
@@ -62,13 +81,13 @@ void neuralNet::init_network( void ){
   /* Initialize the input->hidden weights */
   for (j = 0 ; j  < HIDDEN_NEURONS ; j++) {
     for (i = 0 ; i < INPUT_NEURONS+1 ; i++) {
-      w_h_i[j][i] = RAND_WEIGHT;
+      w_h_i[j][i] = RAND_WEIGHT();
     }
   }
 
   for (j = 0 ; j < OUTPUT_NEURONS ; j++) {
     for (i = 0 ; i < HIDDEN_NEURONS+1 ; i++) {
-      w_o_h[j][i] = RAND_WEIGHT;
+      w_o_h[j][i] = RAND_WEIGHT();
     }
   }
 
@@ -85,8 +104,8 @@ void neuralNet::feed_forward(void){
     hidden[i] = 0.0;
 
     for (j = 0 ; j < INPUT_NEURONS+1 ; j++) {
-      //hidden[i] += (w_h_i[i][j] * inputs[j]);
-        hidden[i] += (w_h_i[i*INPUT_NEURONS + j] * inputs[j]);
+      hidden[i] += (w_h_i[i][j] * inputs[j]);
+       //hidden[i] += (w_h_i[i*INPUT_NEURONS + j] * inputs[j]);
     }
 
     hidden[i] = sigmoid( hidden[i] );
@@ -99,8 +118,8 @@ void neuralNet::feed_forward(void){
     outputs[i] = 0.0;
 
     for (j = 0 ; j < HIDDEN_NEURONS+1 ; j++) {
-      //outputs[i] += (w_o_h[i][j] * hidden[j] );
-        outputs[i] += (w_o_h[i*HIDDEN_NEURONS + j] * hidden[j] );
+      outputs[i] += (w_o_h[i][j] * hidden[j] );
+      //outputs[i] += (w_o_h[i*HIDDEN_NEURONS + j] * hidden[j] );
     }
 
     outputs[i] = sigmoid( outputs[i] );
@@ -129,8 +148,8 @@ void neuralNet::backpropagate_error(int test){
 
     /* Include error contribution for all output nodes */
     for (out = 0 ; out < OUTPUT_NEURONS ; out++) {
-      //err_hid[hid] += err_out[out] * w_o_h[out][hid];
-        err_hid[hid] += err_out[out] * w_o_h[out*HIDDEN_NEURONS + hid];
+      err_hid[hid] += err_out[out] * w_o_h[out][hid];
+      //err_hid[hid] += err_out[out] * w_o_h[out*HIDDEN_NEURONS + hid];
     }
 
     err_hid[hid] *= sigmoid_d( hidden[hid] );
@@ -141,8 +160,8 @@ void neuralNet::backpropagate_error(int test){
   for (out = 0 ; out < OUTPUT_NEURONS ; out++) {
 
     for (hid = 0 ; hid < HIDDEN_NEURONS ; hid++) {
-      //w_o_h[out][hid] += RHO * err_out[out] * hidden[hid];
-        w_o_h[out*HIDDEN_NEURONS + hid] += RHO * err_out[out] * hidden[hid];
+      w_o_h[out][hid] += RHO * err_out[out] * hidden[hid];
+      //w_o_h[out*HIDDEN_NEURONS + hid] += RHO * err_out[out] * hidden[hid];
     }
 
   }
@@ -151,8 +170,8 @@ void neuralNet::backpropagate_error(int test){
   for (hid = 0 ; hid < HIDDEN_NEURONS ; hid++) {
 
     for (inp = 0 ; inp < INPUT_NEURONS+1 ; inp++) {
-      //w_h_i[hid][inp] += RHO * err_hid[hid] * inputs[inp];
-        w_h_i[hid*(INPUT_NEURONS+1) + inp] += RHO * err_hid[hid] * inputs[inp];
+      w_h_i[hid][inp] += RHO * err_hid[hid] * inputs[inp];
+      //w_h_i[hid*(INPUT_NEURONS+1) + inp] += RHO * err_hid[hid] * inputs[inp];
     }
 
   }
