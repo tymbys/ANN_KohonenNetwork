@@ -273,8 +273,8 @@ void Kohonen_MNIST_TEST() {
 
 void neuralNet_TEST() {
 
-    const int count_data_train = 10; //количество выборок кажной цифры для тренировки
-    int inc_train[10] = {0};
+    const int count_data_train = 30; //количество выборок кажной цифры для тренировки
+    int inc_train[count_data_train] = {0};
     neural_net = new neuralNet(28 * 28, 10, 10);
 
     //sleep(3);
@@ -294,20 +294,20 @@ void neuralNet_TEST() {
 
         int label = ar_label[i][0];
 
-        if (label >= 0 && label < 10  ) { //0..9
-            
+        if (label >= 0 && label < 10) { //0..9
+
 
             if (inc_train[label] < count_data_train) {
                 inc_train[label]++;
-                
-                neural_net->alphabet[label] = img;//.push_back(1);
+
+                //neural_net->alphabet[label] = img; //.push_back(1);
                 neural_net->tests[label].image = img;
 
-                for(int j=0; j < 10; j++){
-                    if(j==label)
-                       neural_net->tests[label].output[j] = 1;
+                for (int j = 0; j < 10; j++) {
+                    if (j == label)
+                        neural_net->tests[label].output[j] = 1;
                     else
-                       neural_net->tests[label].output[j] = 0;
+                        neural_net->tests[label].output[j] = 0;
                 }
 
 
@@ -334,33 +334,33 @@ void neuralNet_TEST() {
 
         }
 
-//        if (label == 1) {
-//            cout << endl << endl << "ind: " << i << "\tImg : " << label << endl;
-//            for (auto point : img) {
-//                if (x >= w) {
-//                    x = 0;
-//                    y++;
-//                    cout << endl;
-//                }
-//                x++;
-//                cout << setw(4) << point;
-//            }
-//
-//        }
+        //        if (label == 1) {
+        //            cout << endl << endl << "ind: " << i << "\tImg : " << label << endl;
+        //            for (auto point : img) {
+        //                if (x >= w) {
+        //                    x = 0;
+        //                    y++;
+        //                    cout << endl;
+        //                }
+        //                x++;
+        //                cout << setw(4) << point;
+        //            }
+        //
+        //        }
 
-            i++;
+        i++;
     }
 
 
     cout << endl;
 
     //exit(0);
-    
+
 
     int test;
-    double mse;
+    double mse, noise_prob;
 
-    int count_mse=0;
+    int count_mse = 0;
     //training
     do {
 
@@ -385,7 +385,32 @@ void neuralNet_TEST() {
         count_mse++;
     } while (mse > 0.001);
 
-    cout<<"count_mse: "<< count_mse << mse << endl;
+    cout << "count_mse: " << count_mse << endl;
 
-    //cross validation 
+
+
+    noise_prob = 0;
+    int guess, ans;
+    for (i = 0; i < 10; i++) {
+        test = neural_net->rand_test();
+        neural_net->set_network_inputs(test, noise_prob);
+
+        neural_net->feed_forward();
+
+        //*    
+        for (int j = 0; j < neural_net->INPUT_NEURONS; j++) {
+            if ((j % 28) == 0) printf("\n");
+            //printf("%d ", (int) neural_net->inputs[j]);
+            cout << setw(4) << (int) neural_net->inputs[j];
+        } //*/
+
+        guess = neural_net->classifier() + '0';
+        ans = neural_net->find_ans(test) + '0';
+        printf("\nclassified as %c, supposed to be %c\n\n", guess, ans);
+
+        //noise_prob += 0.05;
+
+    }
+    
+    neural_net->saveNetAsInclude("../ANN_Small/NN_W.h");
 }

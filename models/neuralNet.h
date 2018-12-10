@@ -18,11 +18,10 @@
 using namespace std;
 
 typedef struct test_images_s {
-    
-//    test_images_s (int IMAGE_SIZE, int OUTPUT_NEURONS){
-//        image.resize(IMAGE_SIZE);
-//        output.resize(OUTPUT_NEURONS);
-//    };
+    //    test_images_s (int IMAGE_SIZE, int OUTPUT_NEURONS){
+    //        image.resize(IMAGE_SIZE);
+    //        output.resize(OUTPUT_NEURONS);
+    //    };
     vector <double> image; //[IMAGE_SIZE];
     vector <double> output; //[OUTPUT_NEURONS];
 
@@ -32,7 +31,15 @@ class neuralNet {
 public:
     vector <vector<double>> alphabet;
     vector <test_images_t> tests;
-    
+
+    int INPUT_NEURONS; // #define INPUT_NEURONS	322
+    int HIDDEN_NEURONS; //#define HIDDEN_NEURONS	26
+    int OUTPUT_NEURONS; //#define OUTPUT_NEURONS	26
+
+    vector <double> inputs; //[INPUT_NEURONS + 1];
+    vector <double> hidden; //[HIDDEN_NEURONS + 1];
+    vector <double> outputs; //[OUTPUT_NEURONS];
+
     neuralNet(const int inputs_neurons, const int hidden_neurons, const int outputs_neurons);
     virtual ~neuralNet();
 
@@ -48,19 +55,16 @@ public:
 
     void read_input(const char* name, int index);
 
+    int find_ans(int index);
+    int classifier(void);
+    
+    
+    bool saveNetAsInclude(string name);
+
+
 private:
-
-    int INPUT_NEURONS; // #define INPUT_NEURONS	322
-    int HIDDEN_NEURONS; //#define HIDDEN_NEURONS	26
-    int OUTPUT_NEURONS; //#define OUTPUT_NEURONS	26
-
+    
     int MAX_TESTS;
-
-    vector <double> inputs; //[INPUT_NEURONS + 1];
-    vector <double> hidden; //[HIDDEN_NEURONS + 1];
-    vector <double> outputs; //[OUTPUT_NEURONS];
-
-
     vector<vector<double>> w_h_i;
     vector<vector<double>> w_o_h;
     //double *w_h_i; //[HIDDEN_NEURONS][INPUT_NEURONS + 1];
@@ -72,18 +76,14 @@ private:
     int alphabet_count;
 
     double RHO;
-    
+
     double RAND_WEIGHT();
     double sigmoid(double x);
     double sigmoid_d(double x);
 
-    int find_ans(int index);
 
     void init_network(void);
 
-
-
-    int classifier(void);
 
 };
 
