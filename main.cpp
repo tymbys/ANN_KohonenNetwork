@@ -215,7 +215,7 @@ void MNIST_TEST() {
 }
 
 void Kohonen_MNIST_TEST() {
-    const int count_data_train = 10; //количество выборок кажной цифры для тренировки
+    const int count_data_train = 0; //количество выборок кажной цифры для тренировки
 
     int w = 28, h = 28;
     const int data_size = 784; //w*h; //784;
@@ -273,13 +273,13 @@ void Kohonen_MNIST_TEST() {
 
 void neuralNet_TEST() {
 
-    const int count_data_train = 30; //количество выборок кажной цифры для тренировки
+    const int count_data_train = 1000; //количество выборок кажной цифры для тренировки
     int inc_train[count_data_train] = {0};
     neural_net = new neuralNet(28 * 28, 10, 10);
 
     //sleep(3);
 
-    const int count = 1000;
+    const int count = 10000;
     vector<vector<double>> ar_img;
     vector<vector<double>> ar_label;
     mnist.ReadMNIST("./db/t10k-images.idx3-ubyte", count, 784, ar_img, IS_IMG); //28x28
@@ -325,7 +325,7 @@ void neuralNet_TEST() {
 
             //проверяем кол-во тренировок
             int sum = 0;
-            for (int num = 0; num < 10; num++) {
+            for (int num = 0; num < count_data_train; num++) {
                 sum += inc_train[num];
             }
 
@@ -412,5 +412,5 @@ void neuralNet_TEST() {
 
     }
     
-    neural_net->saveNetAsInclude("../ANN_Small/NN_W.h");
+    neural_net->saveNetAsInclude("../ANN_Small/NN_W");
 }

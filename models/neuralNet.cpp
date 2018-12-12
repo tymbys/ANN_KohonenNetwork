@@ -240,72 +240,93 @@ int neuralNet::find_ans(int index) {
 }
 
 bool neuralNet::saveNetAsInclude(string name) {
-    //ifstream infile(file, ifstream::in);
-    ofstream outfile(name, ifstream::out);
-    if (!outfile) {
-        cout << "Can't read from " << name << endl;
+    ofstream out_h(name + ".h", ifstream::out);
+    if (!out_h) {
+        cout << "Can't out from " << name << endl;
         return false;
     }
+    
+out_h   << "#ifndef NN_W_H\n"
+        << "#define NN_W_H\n"
+        << "#define INPUT_NEURONS " << INPUT_NEURONS << "\n"
+        << "#define HIDDEN_NEURONS " << HIDDEN_NEURONS<< "\n"
+        << "#define OUTPUT_NEURONS " << OUTPUT_NEURONS << "\n"
+        << "extern const double w_h_i[" << HIDDEN_NEURONS << "][INPUT_NEURONS + 1];\n"
+        << "extern const double w_o_h[" << OUTPUT_NEURONS << "][HIDDEN_NEURONS + 1];\n"
+        << "#endif";
 
-    //w_h_i
 
-    //    vector<vector<double>> w = {
-    //        {1,1,1,1},
-    //        {2,2,2,2}
-    //    };
+
+
+
+    ofstream out_c(name + ".c", ifstream::out);
+    if (!out_c) {
+        cout << "Can't out from " << name << endl;
+        return false;
+    }
 
     bool isFirst_x = true;
     bool isFirst_y = true;
 
+    out_c << "#include \"NN_W.h\"\n\n";
+    
     //save w_h_i
-    outfile << "const double w_h_i["<< HIDDEN_NEURONS <<"][" <<INPUT_NEURONS + 1<<"] = {";
+    out_c << "const double w_h_i[" << HIDDEN_NEURONS << "][" << INPUT_NEURONS + 1 << "] = {";
 
     for (auto y : w_h_i) {
         if (isFirst_y) {
-            outfile << "\n{";
+            out_c << "\n{";
             isFirst_y = false;
         } else
-            outfile << ",\n{";
+            out_c << ",\n{";
 
         isFirst_x = true;
         for (double x : y) {
             if (isFirst_x) {
-                outfile << x;
+                out_c << x;
                 isFirst_x = false;
             } else
-                outfile << ",\t" << x;
+                out_c << ",\t" << x;
         }
-        outfile << "}";
+        out_c << "}";
 
     }
-    outfile << "\n};\n\n";
+    out_c << "\n};\n\n";
 
 
 
     //save w_o_h
-    outfile << "const double w_o_h["<<OUTPUT_NEURONS <<"]["<< HIDDEN_NEURONS + 1 <<"] = {";
+    out_c << "const double w_o_h[" << OUTPUT_NEURONS << "][" << HIDDEN_NEURONS + 1 << "] = {";
 
     isFirst_x = true;
     isFirst_y = true;
     for (auto y : w_o_h) {
         if (isFirst_y) {
-            outfile << "\n{";
+            out_c << "\n{";
             isFirst_y = false;
         } else
-            outfile << ",\n{";
+            out_c << ",\n{";
 
         isFirst_x = true;
         for (double x : y) {
             if (isFirst_x) {
-                outfile << x;
+                out_c << x;
                 isFirst_x = false;
             } else
-                outfile << ",\t" << x;
+                out_c << ",\t" << x;
         }
-        outfile << "}";
+        out_c << "}";
 
     }
-    outfile << "\n};\n\n";
+    out_c << "\n};\n\n";
+    
+    
+     printf("\nw_h_i\n");
+            for (int j = 0; j < INPUT_NEURONS*HIDDEN_NEURONS; j++) {
+               
+                printf("%03d", (int) w_h_i[0][j]);
+                //cout << setw(4) << (int) neural_net->inputs[j];
+            } 
 
     return true;
 }
