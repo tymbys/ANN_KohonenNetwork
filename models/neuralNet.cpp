@@ -91,6 +91,34 @@ void neuralNet::init_network(void) {
     return;
 }
 
+
+void neuralNet::init_network(const double **_w_h_i, const double **_w_o_h){
+
+    int i, j;
+
+    /* Set the input bias */
+    inputs[INPUT_NEURONS] = 1.0;
+
+    /* Set the hidden bias */
+    hidden[HIDDEN_NEURONS] = 1.0;
+
+    /* Initialize the input->hidden weights */
+    for (j = 0; j < HIDDEN_NEURONS; j++) {
+        for (i = 0; i < INPUT_NEURONS + 1; i++) {
+            w_h_i[j][i] = _w_h_i[j][i];
+        }
+    }
+
+    for (j = 0; j < OUTPUT_NEURONS; j++) {
+        for (i = 0; i < HIDDEN_NEURONS + 1; i++) {
+            w_o_h[j][i] = _w_o_h[j][i];
+        }
+    }
+
+    return;
+
+}
+
 void neuralNet::feed_forward(void) {
     int i, j;
 
@@ -321,12 +349,12 @@ out_h   << "#ifndef NN_W_H\n"
     out_c << "\n};\n\n";
     
     
-     printf("\nw_h_i\n");
-            for (int j = 0; j < INPUT_NEURONS*HIDDEN_NEURONS; j++) {
+//     printf("\nw_h_i\n");
+//            for (int j = 0; j < INPUT_NEURONS*HIDDEN_NEURONS; j++) {
                
-                printf("%03d", (int) w_h_i[0][j]);
-                //cout << setw(4) << (int) neural_net->inputs[j];
-            } 
+//                printf("%03d", (int) w_h_i[0][j]);
+//                //cout << setw(4) << (int) neural_net->inputs[j];
+//            }
 
     return true;
 }

@@ -273,13 +273,13 @@ void Kohonen_MNIST_TEST() {
 
 void neuralNet_TEST() {
 
-    const int count_data_train = 1000; //количество выборок кажной цифры для тренировки
+    const int count_data_train = 10; //количество выборок кажной цифры для тренировки
     int inc_train[count_data_train] = {0};
     neural_net = new neuralNet(28 * 28, 10, 10);
 
     //sleep(3);
 
-    const int count = 10000;
+    const int count = 5000;
     vector<vector<double>> ar_img;
     vector<vector<double>> ar_label;
     mnist.ReadMNIST("./db/t10k-images.idx3-ubyte", count, 784, ar_img, IS_IMG); //28x28
@@ -301,7 +301,12 @@ void neuralNet_TEST() {
                 inc_train[label]++;
 
                 //neural_net->alphabet[label] = img; //.push_back(1);
-                neural_net->tests[label].image = img;
+
+                //neural_net->tests[label].image = img;
+                //neural_net->tests[label].image.resize(784);
+                for(int im_ind=0; im_ind< 784; im_ind++){
+                   neural_net->tests[label].image[im_ind] =  img[im_ind] > 100 ? 1 : 0;
+                }
 
                 for (int j = 0; j < 10; j++) {
                     if (j == label)
@@ -397,20 +402,22 @@ void neuralNet_TEST() {
 
         neural_net->feed_forward();
 
-        //*    
+
+
+        guess = neural_net->classifier() + '0';
+        ans = neural_net->find_ans(test) + '0';
+        printf("\nclassified as %c, supposed to be %c\n", guess, ans);
+        //*
         for (int j = 0; j < neural_net->INPUT_NEURONS; j++) {
             if ((j % 28) == 0) printf("\n");
             //printf("%d ", (int) neural_net->inputs[j]);
             cout << setw(4) << (int) neural_net->inputs[j];
         } //*/
-
-        guess = neural_net->classifier() + '0';
-        ans = neural_net->find_ans(test) + '0';
-        printf("\nclassified as %c, supposed to be %c\n\n", guess, ans);
-
         //noise_prob += 0.05;
 
     }
     
     neural_net->saveNetAsInclude("../ANN_Small/NN_W");
+
+    printf("w_h_i[0][0]: %f\n",neural_net->w_h_i[5][500]);
 }

@@ -40,6 +40,9 @@ public:
     vector <double> hidden; //[HIDDEN_NEURONS + 1];
     vector <double> outputs; //[OUTPUT_NEURONS];
 
+    vector<vector<double>> w_h_i;
+    vector<vector<double>> w_o_h;
+
     neuralNet(const int inputs_neurons, const int hidden_neurons, const int outputs_neurons);
     virtual ~neuralNet();
 
@@ -61,12 +64,14 @@ public:
     
     bool saveNetAsInclude(string name);
 
+    void init_network(const double **_w_h_i, const double **_w_o_h);
+
 
 private:
     
     int MAX_TESTS;
-    vector<vector<double>> w_h_i;
-    vector<vector<double>> w_o_h;
+//    vector<vector<double>> w_h_i;
+//    vector<vector<double>> w_o_h;
     //double *w_h_i; //[HIDDEN_NEURONS][INPUT_NEURONS + 1];
     //double *w_o_h; //[OUTPUT_NEURONS][HIDDEN_NEURONS + 1];
 
